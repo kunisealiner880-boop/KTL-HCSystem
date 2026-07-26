@@ -208,20 +208,23 @@
       line-height: 1.4;
     }
 
-    .lang-section {
-      background: #f9f9f9;
-      padding: 10px;
+    /* Googleドライブ動画埋め込みコンテナ */
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-top: 75%; /* 4:3のアスペクト比 (480/640) */
+      margin-top: 10px;
       border-radius: 8px;
-      margin-bottom: 12px;
-      border: 1px dashed #ccc;
+      overflow: hidden;
+      background: #000;
     }
-    .lang-badge {
-      font-size: 0.75em;
-      font-weight: bold;
-      color: #777;
-      display: block;
-      margin-bottom: 5px;
-      text-align: left;
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
     }
   </style>
 </head>
@@ -247,6 +250,7 @@
       </div>
     </div>
 
+    <!-- WELCOME VIEW -->
     <div id="view-welcome" class="app-view hidden">
       <div class="menu-card" style="border-left: 8px solid var(--main-green); text-align: center;">
         <span class="khmer-text" style="font-size: 1.4em; color: var(--main-green);">សូមស្វាគមន៍</span>
@@ -256,9 +260,9 @@
         <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
         
         <button class="btn-green" onclick="showView('view-register')" style="margin-bottom: 20px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-          <span class="khmer-text" style="color: white; font-size: 1.1em; margin: 0;">ខ្ញុំជាអ្នកភូមិ (ចុះឈ្មោះផ្ទះ)</span>
-          <span class="eng-text" style="color: white; font-size: 0.9em; margin: 0;">I am a Resident (Register Home)</span>
-          <span class="jap-text" style="color: #e8f5e9; font-size: 0.75em; margin: 0;">住民の方はこちら（マイホーム登録）</span>
+          <span class="khmer-text" style="color: white; font-size: 1.1em; margin: 0;">ខ្ញុំជាអ្នកភូមិ (ចាប់ផ្តើម)</span>
+          <span class="eng-text" style="color: white; font-size: 0.9em; margin: 0;">I am a Resident (Get ID)</span>
+          <span class="jap-text" style="color: #e8f5e9; font-size: 0.75em; margin: 0;">住民の方はこちら（ID新規発行・利用開始）</span>
         </button>
         
         <button class="btn-outline" onclick="checkAuth('register')" style="border-color: var(--main-blue); color: var(--main-blue); padding: 16px;">
@@ -268,43 +272,30 @@
       </div>
     </div>
 
+    <!-- REGISTER ID (SIMPLE) VIEW -->
     <div id="view-register" class="app-view hidden">
-      <div class="menu-card" style="border-left: 8px solid var(--main-purple)">
-        <span class="khmer-text" style="color: var(--main-purple);">ចុះឈ្មោះផ្ទះរបស់អ្នក</span>
-        <span class="eng-text" style="font-weight: bold; color: var(--main-purple);">Register Your Home</span>
-        <span class="jap-text" style="font-weight: bold; color: var(--main-purple);">【初回のみ】マイホーム登録</span>
-        <p style="font-size: 0.8em; color:#666; margin-top:5px;">
-          <span style="display:block;">បន្ទាប់ពីចុះឈ្មោះរួច លេខសម្គាល់ផ្ទះ (House ID) ផ្ទាល់ខ្លួនជារបស់អ្នកនឹងត្រូវបង្កើតឡើងដោយស្វ័យប្រវត្តិ Microsoft。</span>
-          <span style="display:block; margin-top:2px;">After registering, your own unique House ID will be automatically generated.</span>
-          <span style="display:block; color:#999; margin-top:2px;">※登録するとあなた専用 of House ID番号が自動発行されます。</span>
+      <div class="menu-card" style="border-left: 8px solid var(--main-purple); text-align: center;">
+        <span class="khmer-text" style="color: var(--main-purple);">បង្កើតលេខសម្គាល់ផ្ទះ</span>
+        <span class="eng-text" style="font-weight: bold; color: var(--main-purple);">Get Your House ID</span>
+        <span class="jap-text" style="font-weight: bold; color: var(--main-purple);">【初回のみ】ID発行・利用開始</span>
+        
+        <p style="font-size: 0.8em; color:#666; margin: 15px 0;">
+          <span style="display:block;">ចុចប៊ូតុងខាងក្រោមដើម្បីទទួលបានលេខសម្គាល់ផ្ទះ (House ID) របស់អ្នក។</span>
+          <span style="display:block; margin-top:2px;">Click below to generate your unique House ID.</span>
+          <span style="display:block; color:#888; margin-top:2px;">※名前や位置情報は取得されません。ボタンを押すと専用IDが自動発行されます。</span>
         </p>
 
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
-
-        <label>
-          <span class="khmer-text" style="font-size:1em; margin:0;">ឈ្មោះរបស់អ្នក (ជាអក្សរឡាតាំង)</span>
-          <span class="eng-text" style="font-size:0.85em; margin:0;">Your Name (Roman letters)</span>
-          <span class="jap-text" style="font-size:0.7em; margin:0;">お名前（ローマ字）</span>
-        </label>
-        <input type="text" id="reg-ownerName" placeholder="Example: Sok San">
-
-        <label style="margin-top:10px; display:block;">
-          <span class="khmer-text" style="font-size:1em; margin:0;">ចំនួនសមាជិកគ្រខ្សារ</span>
-          <span class="eng-text" style="font-size:0.85em; margin:0;">Family Size</span>
-          <span class="jap-text" style="font-size:0.7em; margin:0;">世帯人数</span>
-        </label>
-        <input type="number" id="reg-familySize" placeholder="Example: 5" min="1">
-
-        <button class="btn-purple" id="reg-btn" onclick="registerMyHome()">
-          <span class="khmer-text" style="color: white; font-size: 1.1em;">ចុះឈ្មោះ និង ចាប់ផ្តើម</span>
-          <span class="eng-text" style="color: white; font-size: 0.9em;">Register & Start</span>
-          <span class="jap-text" style="color: #f5eef8; font-size: 0.7em;">位置情報を登録して利用開始（位置は任意）</span>
+        <button class="btn-purple" id="reg-btn" onclick="registerMyHomeSimple()" style="padding: 18px; margin-top: 10px;">
+          <span class="khmer-text" style="color: white; font-size: 1.1em; margin:0;">ចាប់ផ្តើមប្រើប្រាស់</span>
+          <span class="eng-text" style="color: white; font-size: 0.9em; margin:0;">Issue ID & Start</span>
+          <span class="jap-text" style="color: #f5eef8; font-size: 0.75em; margin:0;">IDを発行してスタート</span>
         </button>
         
-        <button class="btn-outline" onclick="showView('view-welcome')" style="margin-top: 10px; padding: 10px; font-size: 0.85em;">戻る</button>
+        <button class="btn-outline" onclick="showView('view-welcome')" style="margin-top: 15px; padding: 10px; font-size: 0.85em;">戻る</button>
       </div>
     </div>
 
+    <!-- REGISTER INSPECTOR VIEW -->
     <div id="view-register-inspector" class="app-view hidden">
       <div class="menu-card" style="border-left: 8px solid var(--main-blue)">
         <h3 style="margin-top: 0; color: var(--main-blue);">📋 調査員 新規登録</h3>
@@ -326,24 +317,18 @@
       </div>
     </div>
 
+    <!-- MAIN (RESIDENT) VIEW -->
     <div id="view-main" class="app-view hidden">
       <div class="menu-card" style="border-left: 8px solid var(--main-green)">
-        <span class="khmer-text">សម្រាប់អ្នកភូមិ</span>
-        <span class="eng-text" style="font-weight: bold;">For Residents</span>
-        <span class="jap-text">住民の方へ</span>
+        <span class="khmer-text">វីដេអូពន្យល់</span>
+        <span class="eng-text" style="font-weight: bold;">Explanatory Video</span>
+        <span class="jap-text">解説動画</span>
 
         <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
 
-        <div class="lang-section">
-          <span class="lang-badge">🇰🇭 ភាសាខ្មែរ (Khmer)</span>
-          <button class="btn-green" style="padding:12px; margin:4px 0;" onclick="logAndOpen('パンフレット閲覧_KM', 'YOUR_KHMER_PAMPHLET_URL')">មើលខិត្តប័ណ្ណ</button>
-          <button class="btn-green" style="padding:12px; margin:4px 0;" onclick="logAndOpen('動画視聴_KM', 'YOUR_KHMER_VIDEO_URL')">មើលវីដេអូ</button>
-        </div>
-
-        <div class="lang-section">
-          <span class="lang-badge">🇬🇧🇯🇵 English / 日本語</span>
-          <button class="btn-green" style="background:#2ecc71; padding:12px; margin:4px 0;" onclick="logAndOpen('パンフレット閲覧_EN', 'YOUR_ENGLISH_PAMPHLET_URL')">Read Pamphlet / パンフレット</button>
-          <button class="btn-green" style="background:#2ecc71; padding:12px; margin:4px 0;" onclick="logAndOpen('動画視聴_EN', 'YOUR_ENGLISH_VIDEO_URL')">Watch Video / 解説動画</button>
+        <!-- Google Drive Video Embed -->
+        <div class="video-container">
+          <iframe src="https://drive.google.com/file/d/1f3Df3-ByoPVkKRqoZE_pFp2y3jCv8zlB/preview" width="640" height="480" allow="autoplay"></iframe>
         </div>
       </div>
 
@@ -364,6 +349,7 @@
       </div>
     </div>
 
+    <!-- RESEARCHER VIEW -->
     <div id="view-researcher" class="app-view hidden">
       <div class="menu-card" style="border-left: 8px solid var(--main-blue)">
         <h3 style="margin-top: 0; color: var(--main-blue);">📋 調査員メニュー</h3>
@@ -373,7 +359,6 @@
           👤 担当調査員: <b id="lbl-current-inspector">未登録</b>
         </div>
 
-        <!-- 復旧したHouse ID確認・変更機能エリア -->
         <div style="background: #fff3e0; padding: 12px; border-radius: 8px; font-size: 0.85em; margin-bottom: 15px; color: #e65100; border: 1px solid #ffe0b2;">
           🏠 選択中のHouse ID: <b id="lbl-current-house-id">未設定</b>
           <div style="display: flex; gap: 5px; margin-top: 8px; align-items: center;">
@@ -390,6 +375,7 @@
       </div>
     </div>
 
+    <!-- INSPECTOR PROFILE VIEW -->
     <div id="view-inspector-profile" class="app-view hidden">
       <div class="menu-card" style="border-left: 8px solid var(--main-blue)">
         <h3 style="margin-top: 0; color: var(--main-blue);">👤 調査員情報の確認・更新</h3>
@@ -412,6 +398,7 @@
       </div>
     </div>
 
+    <!-- FORM VIEW -->
     <div id="view-form" class="app-view hidden">
       <h3 style="color: var(--main-blue);">✍️ <span id="form-title-mode">新規調査記録</span></h3>
       <div style="background:#e3f2fd; padding:10px; border-radius:6px; font-weight:bold; font-size:0.9em; color:#1565c0; margin-bottom:15px;">
@@ -440,6 +427,7 @@
       <button class="btn-outline" onclick="showView('view-researcher')">戻る</button>
     </div>
 
+    <!-- HISTORY VIEW -->
     <div id="view-history" class="app-view hidden">
       <h3 style="color: var(--main-blue);">🏠 選択中の家の調査履歴</h3>
       <div id="map"></div>
@@ -447,6 +435,7 @@
       <button class="btn-outline" onclick="showView('view-researcher')" style="margin-top: 20px;">戻る</button>
     </div>
 
+    <!-- ADMIN VIEW -->
     <div id="view-admin" class="app-view hidden">
       <h3 style="color: var(--main-purple);">⚙️ 管理者ダッシュボード</h3>
       
@@ -483,19 +472,20 @@
             </tr>
           </thead>
           <tbody id="admin-table-body">
-            </tbody>
+          </tbody>
         </table>
       </div>
 
       <button class="btn-outline" onclick="showView('view-researcher')" style="margin-top: 20px;">戻る</button>
     </div>
 
+    <!-- SUCCESS MODAL -->
     <div id="reg-success-modal" class="modal hidden">
       <div class="modal-content" style="max-width:360px;">
         <div style="font-size: 40px; color: var(--main-purple); margin-bottom: 10px;">🎉</div>
-        <div class="khmer-text" style="color: var(--main-purple); font-size:1.1em;">ការចុះឈ្មោះបានជោគជ័យ!</div>
-        <div class="eng-text" style="font-weight: bold; color: var(--main-purple); font-size:0.9em;">Registration Successful!</div>
-        <div class="jap-text" style="font-weight: bold; color: var(--main-purple); font-size:0.75em;">マイホーム登録が完了しました！</div>
+        <div class="khmer-text" style="color: var(--main-purple); font-size:1.1em;">ការបង្កើតបានជោគជ័យ!</div>
+        <div class="eng-text" style="font-weight: bold; color: var(--main-purple); font-size:0.9em;">ID Generated Successfully!</div>
+        <div class="jap-text" style="font-weight: bold; color: var(--main-purple); font-size:0.75em;">IDの発行が完了しました！</div>
         
         <div style="background: #f5eef8; border: 2px dashed var(--main-purple); padding: 15px; border-radius: 10px; margin: 15px 0;">
           <span style="font-size:0.8em; color:#555; display:block;">លេខសម្គាល់ផ្ទះរបស់អ្នក / Your House ID</span>
@@ -513,6 +503,7 @@
       </div>
     </div>
 
+    <!-- QR MODAL -->
     <div id="qr-modal" class="modal hidden" onclick="closeShareQR()">
       <div class="modal-content" onclick="event.stopPropagation()">
         <h4 style="margin-top:0;">📱 近くの人に共有 / Share App</h4>
@@ -526,7 +517,7 @@
       @SendaiNikaHighSchool2026 Global Study II Rainwater group<br>
       System created by kunisealiner Ver.β2.40<br>
       「Ver.β2.40 更新情報」<br>
-      履歴保存コードの修正・保存データのセキュリティ向上・調査員ページの更新・細かいバグ修正
+      動画表示への一本化・個人ID簡易発行機能への最適化・履歴保存コード修正
     </div>
   </div>
 
@@ -579,17 +570,11 @@
         showView('view-main');
     }
 
-    function registerMyHome() {
-        const ownerName = document.getElementById('reg-ownerName').value.trim();
-        const familySize = document.getElementById('reg-familySize').value.trim();
-
-        if (!ownerName || !familySize) {
-            return alert("お名前と世帯人数を正しく入力してください。\nPlease enter your name and family size.");
-        }
-
+    // 簡略化したID発行関数（名前・世帯数・位置情報なし）
+    function registerMyHomeSimple() {
         const btn = document.getElementById('reg-btn');
         btn.disabled = true;
-        btn.innerText = "⏳ 登録中 / Registering...";
+        btn.innerText = "⏳ 発行中 / Generating ID...";
 
         const counterRef = db.collection("system_counters").doc("house_id_counter");
 
@@ -606,49 +591,41 @@
             const formattedId = "H-" + String(newSerialNumber).padStart(4, '0');
             houseId = formattedId;
 
-            navigator.geolocation.getCurrentPosition((pos) => {
-                saveRegistrationData(ownerName, familySize, pos.coords.latitude, pos.coords.longitude);
-            }, (error) => {
-                saveRegistrationData(ownerName, familySize, null, null);
-            }, { timeout: 5000 });
+            // 位置情報・名前等は含めずに保存
+            saveRegistrationDataSimple();
 
         }).catch((err) => {
             console.error(err);
-            alert("登録に失敗しました。電波の良いところで再度お試しください。");
+            alert("IDの発行に失敗しました。電波の良いところで再度お試しください。");
             btn.disabled = false;
-            btn.innerText = "Register & Start";
+            btn.innerText = "Issue ID & Start";
         });
     }
 
-    function saveRegistrationData(name, size, lat, lng) {
+    function saveRegistrationDataSimple() {
         const gasUrl = "https://script.google.com/macros/s/AKfycbyPIhxqIx_M9YmYtdgFWcxJVqE7m93UdCHQIG5zkZJ4d13kTLndkYxoDWaLVeMAZyKDHg/exec";
         
         const params = new URLSearchParams();
         params.append('houseId', houseId);
         params.append('inspector', "住民自身 (Resident)");
-        params.append('ownerName', name);
-        params.append('familySize', size);
+        params.append('ownerName', "未登録");
+        params.append('familySize', "0");
         params.append('hasGutter', "未確認");
-        params.append('note', "【新規マイホーム登録地点】");
-        params.append('lat', lat !== null ? lat : "");
-        params.append('lng', lng !== null ? lng : "");
+        params.append('note', "【新規ID簡易発行】");
+        params.append('lat', "");
+        params.append('lng', "");
         
         fetch(gasUrl, { method: "POST", mode: "no-cors", body: params });
 
         const logData = {
             houseId: houseId,
             inspector: "住民自身 (Resident)",
-            ownerName: name,
-            familySize: Number(size),
+            ownerName: "未登録",
+            familySize: 0,
             hasGutter: "未確認",
-            note: "【新規マイホーム登録地点】",
+            note: "【新規ID簡易発行】",
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
-
-        if (lat && lng) {
-            logData.lat = lat;
-            logData.lng = lng;
-        }
 
         db.collection("house_logs").add(logData).then(() => {
             localStorage.setItem('my_saved_house_id', houseId);
@@ -657,9 +634,12 @@
             
             const btn = document.getElementById('reg-btn');
             btn.disabled = false;
-            btn.innerText = "Register & Start";
+            btn.innerText = "Issue ID & Start";
         }).catch(err => {
             alert("エラーが発生しました: " + err.message);
+            const btn = document.getElementById('reg-btn');
+            btn.disabled = false;
+            btn.innerText = "Issue ID & Start";
         });
     }
 
@@ -675,7 +655,7 @@
         if(id === 'view-admin') initAdminDashboard(); 
         if(id === 'view-researcher') {
             updateInspectorLabel();
-            updateInspectorHouseIdLabel(); // 調査員メニュー表示のタイミングでID表示を更新
+            updateInspectorHouseIdLabel();
         }
         if(id === 'view-inspector-profile') initInspectorProfileView();
     }
@@ -727,7 +707,6 @@
         document.getElementById('lbl-current-inspector').innerText = group ? `${name} (${group})` : name;
     }
 
-    // 調査員メニュー内のHouse IDラベル表示を更新
     function updateInspectorHouseIdLabel() {
         document.getElementById('lbl-current-house-id').innerText = houseId ? houseId : "未設定";
         document.getElementById('inspector-change-house-id').value = houseId || "";
@@ -756,7 +735,6 @@
         showView('view-researcher');
     }
 
-    // 調査員データを完全に削除して初期化する関数
     function deleteInspectorDataAndReset() {
         if (confirm("本当にこの端末から調査員登録を削除しますか？\n登録されている名前、学籍番号、グループ情報がすべて消去され、初期画面に戻ります。")) {
             
@@ -778,22 +756,20 @@
         }
     }
 
-    // ログアウト機能の変更（データを消さず、住民メニューへ切り替える）
     function logoutInspector() {
         if (confirm("調査員モードを終了して住民画面に戻りますか？\n(登録された氏名・学籍番号データは保存されたまま残ります)")) {
-            localStorage.removeItem('is_inspector'); // 調査員の自動ログインのみ解除
+            localStorage.removeItem('is_inspector');
             
             let savedId = localStorage.getItem('my_saved_house_id');
             if (savedId) {
                 houseId = savedId;
-                enterAsResident(); // 住民用のパンフレット等があるメイン画面へ
+                enterAsResident();
             } else {
                 showView('view-welcome');
             }
         }
     }
 
-    // ヘッダー側のID変更処理（各UI表示と同期）
     function changeHouseIdHandy() {
         const newId = document.getElementById('input-house-id').value.trim();
         if (!newId) {
@@ -811,7 +787,6 @@
         if (!document.getElementById('view-history').classList.contains('hidden')) loadHistory();
     }
 
-    // 調査員メニュー側のID変更処理
     function changeHouseIdFromInspector() {
         const newId = document.getElementById('inspector-change-house-id').value.trim();
         if (!newId) {
@@ -821,7 +796,6 @@
         houseId = newId;
         localStorage.setItem('my_saved_house_id', houseId);
         
-        // ヘッダー側の入力欄とも内容を同期させる
         document.getElementById('input-house-id').value = houseId;
         document.getElementById('id-manage-area').classList.remove('hidden');
         
@@ -836,13 +810,6 @@
             markersGroup = L.layerGroup().addTo(map);
         }
         loadHistory();
-    }
-
-    function logAndOpen(actionType, targetUrl) {
-        const gasUrl = "https://script.google.com/macros/s/AKfycbyPIhxqIx_M9YmYtdgFWcxJVqE7m93UdCHQIG5zkZJ4d13kTLndkYxoDWaLVeMAZyKDHg/exec";
-        const logUrl = `${gasUrl}?houseId=${encodeURIComponent(houseId)}&action=${encodeURIComponent(actionType)}&url=${encodeURIComponent(targetUrl)}`;
-        fetch(logUrl, { mode: 'no-cors' });
-        window.open(targetUrl, '_blank');
     }
 
     function loadHistory() {
