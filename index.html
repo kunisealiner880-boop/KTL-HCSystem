@@ -207,25 +207,6 @@
       color: #888;
       line-height: 1.4;
     }
-
-    /* Googleドライブ動画埋め込みコンテナ */
-    .video-container {
-      position: relative;
-      width: 100%;
-      padding-top: 75%; /* 4:3のアスペクト比 (480/640) */
-      margin-top: 10px;
-      border-radius: 8px;
-      overflow: hidden;
-      background: #000;
-    }
-    .video-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
   </style>
 </head>
 
@@ -319,17 +300,19 @@
 
     <!-- MAIN (RESIDENT) VIEW -->
     <div id="view-main" class="app-view hidden">
-      <div class="menu-card" style="border-left: 8px solid var(--main-green)">
+      <div class="menu-card" style="border-left: 8px solid var(--main-green); text-align: center;">
         <span class="khmer-text">វីដេអូពន្យល់</span>
         <span class="eng-text" style="font-weight: bold;">Explanatory Video</span>
         <span class="jap-text">解説動画</span>
 
         <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
 
-        <!-- Google Drive Video Embed -->
-        <div class="video-container">
-          <iframe src="https://drive.google.com/file/d/1f3Df3-ByoPVkKRqoZE_pFp2y3jCv8zlB/preview" width="640" height="480" allow="autoplay"></iframe>
-        </div>
+        <!-- 動画視聴ボタン（ログ送信＆別タブオープン） -->
+        <button class="btn-green" onclick="watchVideoAndLog()" style="padding: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 10px;">
+          <span class="khmer-text" style="color: white; font-size: 1.2em; margin: 0;">🎬 មើលវីដេអូ</span>
+          <span class="eng-text" style="color: white; font-size: 0.95em; margin: 0;">Watch Video</span>
+          <span class="jap-text" style="color: #e8f5e9; font-size: 0.75em; margin: 0;">動画を見る（別タブで開きます）</span>
+        </button>
       </div>
 
       <div style="margin-top: 20px;">
@@ -515,9 +498,9 @@
 
     <div class="footer">
       @SendaiNikaHighSchool2026 Global Study II Rainwater group<br>
-      System created by kunisealiner Ver.β2.40<br>
-      「Ver.β2.40 更新情報」<br>
-      動画表示への一本化・個人ID簡易発行機能への最適化・履歴保存コード修正
+      System created by kunisealiner Ver.β2.41<br>
+      「Ver.β2.41 更新情報」<br>
+      動画直リンク（別タブ移動）移行・動画視聴時IDログ自動送信機能実装
     </div>
   </div>
 
@@ -570,6 +553,39 @@
         showView('view-main');
     }
 
+    // 動画視聴ログを送信して別タブでGoogleドライブ動画を開く
+    function watchVideoAndLog() {
+        const videoUrl = "https://drive.google.com/file/d/1f3Df3-ByoPVkKRqoZE_pFp2y3jCv8zlB/view";
+        const gasUrl = "https://script.google.com/macros/s/AKfycbyPIhxqIx_M9YmYtdgFWcxJVqE7m93UdCHQIG5zkZJ4d13kTLndkYxoDWaLVeMAZyKDHg/exec";
+
+        // スプレッドシート（GAS）へ動画視聴イベントを送信
+        const params = new URLSearchParams();
+        params.append('houseId', houseId || "未設定");
+        params.append('inspector', "動画視聴ログ (Video Watch)");
+        params.append('ownerName', "動画再生ボタン押下");
+        params.append('familySize', "0");
+        params.append('hasGutter', "動画視聴");
+        params.append('note', "【動画再生ログ送信】");
+        params.append('lat', "");
+        params.append('lng', "");
+
+        fetch(gasUrl, { method: "POST", mode: "no-cors", body: params });
+
+        // Firestoreにもログを残す
+        db.collection("house_logs").add({
+            houseId: houseId || "未設定",
+            inspector: "動画視聴ログ (Video Watch)",
+            ownerName: "動画再生ボタン押下",
+            familySize: 0,
+            hasGutter: "動画視聴",
+            note: "【動画再生ログ送信】",
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(err => console.error(err));
+
+        // 新しいタブで動画を開く
+        window.open(videoUrl, '_blank');
+    }
+
     // 簡略化したID発行関数（名前・世帯数・位置情報なし）
     function registerMyHomeSimple() {
         const btn = document.getElementById('reg-btn');
@@ -591,7 +607,6 @@
             const formattedId = "H-" + String(newSerialNumber).padStart(4, '0');
             houseId = formattedId;
 
-            // 位置情報・名前等は含めずに保存
             saveRegistrationDataSimple();
 
         }).catch((err) => {
